@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "scripts": {
-    "dev": "node --watch server.js",
-    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -19,4 +16,8 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {}
+}
+
+"scripts": {
+  "start": "node server.js"
 }
