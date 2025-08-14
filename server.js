@@ -37,7 +37,7 @@ function findBalance(obj) {
 // Redirect root → login page
 app.get('/', (req, res) => res.redirect('/login.html'));
 
-// Login proxy
+// POST /api/login — robust version
 app.post('/api/login', async (req, res) => {
   try {
     const { mobile, password } = req.body;
@@ -46,17 +46,47 @@ app.post('/api/login', async (req, res) => {
     const hashed = md5(password);
     const remoteUrl = `https://mantrishop.in/lottery-backend/glserver/user/login?mobile=${encodeURIComponent(mobile)}&password=${encodeURIComponent(hashed)}`;
 
+    // Fetch with full headers to mimic browser
     const remoteResp = await fetch(remoteUrl, {
       method: 'POST',
       headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
         'Content-Type': 'application/x-www-form-urlencoded',
         'Origin': 'https://mantrishop.in',
         'Referer': 'https://mantrishop.in/',
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': '*/*'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        'Connection': 'keep-alive'
       },
-      body: ''
+      body: '' // original backend expects empty POST body
     });
+
+    const text = await remoteResp.text();
+    console.log('Remote response text:', text);
+
+    let remoteData;
+    try {
+      remoteData = JSON.parse(text);
+    } catch (err) {
+      remoteData = { parseError: true, text }; // store raw text if parsing fails
+    }
+
+    const sc = remoteResp.headers?.raw ? remoteResp.headers.raw()['set-cookie'] : remoteResp.headers?.get?.('set-cookie');
+    let cookieString = '';
+    if (sc && Array.isArray(sc)) cookieString = sc.map(c => c.split(';')[0]).join('; ');
+    else if (typeof sc === 'string') cookieString = sc.split(';')[0];
+
+    const sessionId = uuidv4();
+    sessions[sessionId] = { cookies: cookieString, data: remoteData, createdAt: Date.now() };
+
+    res.json({ ok: true, sessionId, remoteData });
+
+  } catch (err) {
+    console.error('Login proxy error:', err);
+    res.status(500).json({ ok: false, error: 'Proxy login error', details: err.message || String(err) });
+  }
+});
+
 
     // Capture cookies
     const sc = remoteResp.headers?.raw ? remoteResp.headers.raw()['set-cookie'] : remoteResp.headers?.get?.('set-cookie');
