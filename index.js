@@ -1,29 +1,29 @@
-
-// server.js — safe version using dynamic fetch import if needed
+// index.js — main entry for Express proxy
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const path = require('path');
 
+// Create app
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// safe fetch: use global fetch (Node 18+), otherwise dynamically import node-fetch
+// Safe fetch: Node 18+ has global fetch, else fall back to node-fetch
 const fetch = globalThis.fetch || ((...args) => import('node-fetch').then(m => m.default(...args)));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// in-memory sessions
+// In-memory session store
 const sessions = {};
 
-// helper: md5
+// Helper: md5 hashing
 function md5(str) {
   return crypto.createHash('md5').update(String(str)).digest('hex');
 }
 
-// helper to find balance
+// Helper: recursively find balance
 function findBalance(obj) {
   if (!obj) return null;
   if (typeof obj.balance !== 'undefined') return obj.balance;
@@ -34,17 +34,16 @@ function findBalance(obj) {
   return null;
 }
 
+// Redirect root → login page
 app.get('/', (req, res) => res.redirect('/login.html'));
 
-// POST /api/login
+// Login proxy
 app.post('/api/login', async (req, res) => {
   try {
     const { mobile, password } = req.body;
     if (!mobile || !password) return res.status(400).json({ ok: false, error: 'mobile & password required' });
 
-    // MD5 password as remote expects
     const hashed = md5(password);
-
     const remoteUrl = `https://mantrishop.in/lottery-backend/glserver/user/login?mobile=${encodeURIComponent(mobile)}&password=${encodeURIComponent(hashed)}`;
 
     const remoteResp = await fetch(remoteUrl, {
@@ -53,14 +52,14 @@ app.post('/api/login', async (req, res) => {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Origin': 'https://mantrishop.in',
         'Referer': 'https://mantrishop.in/',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0',
         'Accept': '*/*'
       },
       body: ''
     });
 
-    // capture set-cookie headers if any
-    const sc = remoteResp.headers && (remoteResp.headers.raw ? remoteResp.headers.raw()['set-cookie'] : remoteResp.headers.get && remoteResp.headers.get('set-cookie'));
+    // Capture cookies
+    const sc = remoteResp.headers?.raw ? remoteResp.headers.raw()['set-cookie'] : remoteResp.headers?.get?.('set-cookie');
     let cookieString = '';
     if (sc && Array.isArray(sc)) {
       cookieString = sc.map(c => c.split(';')[0]).join('; ');
@@ -68,11 +67,10 @@ app.post('/api/login', async (req, res) => {
       cookieString = sc.split(';')[0];
     }
 
-    // parse JSON safely
     let remoteData;
     try {
       remoteData = await remoteResp.json();
-    } catch (err) {
+    } catch {
       const text = await remoteResp.text().catch(() => '');
       remoteData = { parseError: true, text };
     }
@@ -80,17 +78,17 @@ app.post('/api/login', async (req, res) => {
     const sessionId = uuidv4();
     sessions[sessionId] = { cookies: cookieString, data: remoteData, createdAt: Date.now() };
 
-    return res.json({ ok: true, sessionId, remoteData });
+    res.json({ ok: true, sessionId, remoteData });
   } catch (err) {
-    console.error('Login proxy error:', err && err.stack ? err.stack : err);
-    return res.status(500).json({ ok: false, error: 'Proxy login error', details: err && err.message ? err.message : String(err) });
+    console.error('Login proxy error:', err);
+    res.status(500).json({ ok: false, error: 'Proxy login error', details: err.message || String(err) });
   }
 });
 
-// GET /api/balance?sessionId=...
+// Balance proxy
 app.get('/api/balance', async (req, res) => {
   try {
-    const sessionId = req.query.sessionId;
+    const { sessionId } = req.query;
     if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId required' });
 
     const session = sessions[sessionId];
@@ -102,12 +100,10 @@ app.get('/api/balance', async (req, res) => {
       return res.json({ ok: true, balance: balanceFromLogin, raw: stored });
     }
 
-    // if no balance in login response but cookies exist, try follow-up (optional)
     if (!session.cookies) {
-      return res.json({ ok: true, balance: null, raw: stored, message: 'no cookies to perform follow-up request' });
+      return res.json({ ok: true, balance: null, raw: stored, message: 'no cookies for follow-up request' });
     }
 
-    // example follow-up (may need to change based on real API)
     const followUpUrl = 'https://mantrishop.in/lottery-backend/glserver/user/getUserById';
     const followResp = await fetch(followUpUrl, {
       method: 'GET',
@@ -126,14 +122,14 @@ app.get('/api/balance', async (req, res) => {
 
     const followData = await followResp.json();
     const balance = findBalance(followData);
-    return res.json({ ok: true, balance: balance, raw: followData });
+    res.json({ ok: true, balance, raw: followData });
   } catch (err) {
     console.error('Balance error:', err);
-    return res.status(500).json({ ok: false, error: 'Server error fetching balance', details: err && err.message ? err.message : '' });
+    res.status(500).json({ ok: false, error: 'Server error fetching balance', details: err.message || '' });
   }
 });
 
-// cleanup
+// Cleanup expired sessions
 setInterval(() => {
   const now = Date.now();
   for (const sid of Object.keys(sessions)) {
@@ -141,5 +137,7 @@ setInterval(() => {
   }
 }, 1000 * 60 * 30);
 
-app.listen(PORT, () => console.log(`Proxy server running at http://localhost:${PORT}`));
-
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
