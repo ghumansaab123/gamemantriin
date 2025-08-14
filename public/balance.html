@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+
+  <title>My Profile Page</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      background-color: #f8f4f4;
+      color: #333;
+    }
+    .profile-card {
+  background-color: #f8f4f4; /* Outer container white */
+  padding: 2px; /* Space between blue box and white edges */
+  margin: 8px; /* Space around the white container */
+  border-radius: 10px; /* Rounded corners like mantrishop */
+  margin-top: 40px;
+}
+
+.profile-card-inner {
+  background-color: #0081ff; /* Blue background */
+  padding: 30px; /* Space inside the blue box */
+  border-radius: 3px; /* Match blue box rounding */
+  color: white;
+  height: 190px;
+}
+#prom{
+margin-left: -10px;
+height: 30px;
+}
+    .bell-icon {
+      position: absolute;
+      top: 60px;
+      right: 16px;
+      background: white;
+      color: black;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+    }
+
+    .profile-info {
+      display: flex;
+      gap: 12px;
+    }
+
+    .profile-avatar img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-top: -10px;
+      margin-left: -20px;
+    }
+
+    .profile-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-top: -10px;
+    }
+
+    .top-info {
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .user-id {
+      font-size: 15px;
+      line-height: 25px;
+      font-family: Helvetica Neue,Helvetica,sans-serif;
+      color: #f2f2f2;
+    }
+
+    .bottom-info {
+        margin-left: -50px;
+      margin-top: 10px;
+      font-size: 15px;
+      color: #ffffff;
+      font-family: Helvetica Neue,Helvetica,sans-serif;
+      line-height: 25px;
+    }
+
+    .profile-buttons {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+    }
+
+
+    .profile-buttons button {
+      padding: 6px ;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      padding-left: 20px;
+      padding-right: 20px;
+      margin-top: 0px;
+    }
+
+    .recharge-btn {
+      background-color: #39b54a;
+      color: white;
+      margin-top: -10px;
+      margin-left: -20px;
+      height: 35px;
+    }
+
+    .nickname-btn {
+      background-color: white;
+      color: #666666;
+      margin-top: -10px;
+      margin-left: 10px;
+      height: 35px;
+ 
+    }
+
+    .menu {
+      background-color:#f8f4f4;
+      margin-top: 10px;
+    }
+
+    .menu-item {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #333333;
+      font-family: Helvetica Neue, Helvetica, sans-serif;;
+    }
+
+    .menu-header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .menu-header-left i {
+      width: 20px;
+    }
+
+    .menu-header span {
+      margin-left: 10px;
+    }
+
+    .menu-header-right {
+      font-size: 16px;
+    }
+
+    .dropdown-content {
+      display: none;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: #444;
+      background-color: #f9f9f9;
+    }
+
+    .menu-item.active .dropdown-content {
+      display: block;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: white;
+      border-top: 1px solid #ccc;
+      display: flex;
+      justify-content: space-around;
+      padding: 5px 0;
+    }
+
+    .nav-item {
+      text-align: center;
+      font-size: 10px;
+      color: #AAAAAA;
+    }
+   .nav-item-active{
+    text-align: center;
+      font-size: 10px;
+      color:#0081ff;
+   }
+    a, a:link, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+.profile-card-inner {
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: none;
+}
+
+
+a[href^="tel"] {
+  text-decoration: none;
+  color: inherit;
+}
+.logout-btn {
+    display: inline-block;
+    background-color: #90a4ae; /* greyish blue */
+    color: white;
+    margin-top: 10px;
+    margin-left: 100px;
+    font-size: 18px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 0;
+    width: 90%;
+    max-width: 200px;
+    text-align: center;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    margin-bottom:50px ;
+  }
+  .logout-btn:active {
+    opacity: 0.85; /* tap effect */
+  }
+#proms{
+     margin-top: 2px;
+        height: 22px;
+}
+#wallet{
+        margin-left: -4px;
+        height: 25px;
+}
+#card{
+        margin-left: -5px;
+        height: 27px;
+}
+#address{
+        height: 37px;
+        margin-left:-2px ;
+        margin-top: -7px;
+}
+#securit{
+        height: 27px;
+        margin-left: -2px;
+}
+#download{
+        height: 27px;
+}
+#complaint{
+        height: 26px;
+        margin-left: -4px;
+}
+#about{
+        height: 27px;
+        margin-left: -3px;
+}
+#bottomimages{
+        height: 24px;
+        width:24px
+}
+.submenu-item {
+  padding: 12px 30px;
+  font-size: 14px;
+  color: #333;
+  background-color:#f8f4f4;
+  border-top: 1px solid #e0e0e0;
+  cursor: pointer;
+}
+
+.submenu-item:hover {
+  background-color: #f0f0f0;
+}
+.dropdown-content {
+  background-color: #f8f4f4; /* match the rest of the menu */
+  padding: 0; /* remove extra spacing */
+  border-top: 0px solid #ddd; /* optional separator */
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="profile-card">
+        <div class="profile-card-inner"> 
+    <div class="bell-icon">🔔</div>
+    <div class="profile-info">
+      <div class="profile-avatar">
+        <img src="images/headimg.png" alt="Profile Avatar">
+      </div>
+      <div class="profile-details">
+        <div class="top-info">
+          <div></div>
+          <div class="user-id">
+            User: <span id="user">Loading...</span><br>
+            ID: <span id="userId">Loading...</span>            
+          </div>
+        </div>
+        <div class="bottom-info">
+            Mobile: <span id="mobile">Loading...</span><br>
+            Available Balance: ₹<span id="balance">Loading...</span>            
+        </div>
+      </div>
+    </div>
+    <div class="profile-buttons">
+      <button class="recharge-btn">Recharge</button>
+      <button class="nickname-btn">Change Nick Name</button>
+    </div>
+    </div>
+  </div>
+
+  <div class="menu">
+    <!-- Repeatable Menu Item -->
+    <div class="menu-item" >
+      <div class="menu-header" onclick="window.location.href='bonus.html'">
+        <div class="menu-header-left">
+        <i> <img src="images/bonus.png" id="proms">
+      </i><span>Bonus Record</span>
+        </div>
+
+        <div class="menu-header-right"></div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="window.location.href='promotions.html'">
+        <div class="menu-header-left">
+          <i> <img src="images/prom.png" id="prom" alt=""></i> <span>Promotion</span>
+        </div>
+        <div class="menu-header-right"></div>
+      </div>
+      <div class="dropdown-content">Promotion details and invites here.</div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="toggleMenu(this)">
+        <div class="menu-header-left">
+          <i><img src="images/wallet.png        " id="wallet" alt=""></i> <span>Wallet</span>
+        </div>
+        <div class="menu-header-right"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg" style="transform: rotate(90deg);">
+             <polyline points="6 4 10 8 6 12" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/>
+           </svg>
+           
+        </div>
+      </div>
+      <div class="dropdown-content">
+                <div class="submenu-item" onclick="window.location.href='recharge.html'">Recharge</div>
+                <div class="submenu-item" onclick="window.location.href='withdraw.html'">Withdrawal</div>
+                <div class="submenu-item" onclick="window.location.href='transactions.html'">Transactions</div>
+              </div>
+              
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="window.location.href='person-bank.html'">
+        <div class="menu-header-left">
+          <i><img src="images/card.png" id="card" alt=""></i> <span>Bank Card</span>
+        </div>
+        <div class="menu-header-right"></div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="window.location.href='address.html'">
+        <div class="menu-header-left">
+          <i><img src="images/address.png" id="address" alt=""></i> <span>Address</span>
+        </div>
+        <div class="menu-header-right"></div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="toggleMenu(this)">
+        <div class="menu-header-left">
+          <i><img src="images/security.png" id="securit" alt=""></i> <span>Account Security</span>
+        </div>
+        <div class="menu-header-right"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg" style="transform: rotate(90deg);">
+             <polyline points="6 4 10 8 6 12" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/>
+           </svg>
+           </div>
+      </div>
+      <div class="dropdown-content">
+        <div class="submenu-item" onclick="window.location.href='Reset-Pass.html'">Reset Password</div>
+
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="toggleMenu(this)">
+        <div class="menu-header-left">
+          <i><img src="images/download.png" id="download" alt=""></i> <span>App Download</span>
+        </div>
+        <div class="menu-header-right"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg" style="transform: rotate(90deg);">
+             <polyline points="6 4 10 8 6 12" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/>
+           </svg>
+           </div>
+      </div>
+      <div class="dropdown-content">  <div class="submenu-item">Stay Tuned for App</div></div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="window.location.href='complaint.html'" >
+        <div class="menu-header-left">
+          <i><img src="images/complaint.png" id="complaint" alt=""></i> <span>Complaints & Suggestions</span>
+        </div>
+        <div class="menu-header-right"></div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="menu-header" onclick="toggleMenu(this)">
+        <div class="menu-header-left">
+          <i><img src="images/what.png" id="about" alt=""></i> <span>About</span>
+        </div>
+        <div class="menu-header-right"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                xmlns="http://www.w3.org/2000/svg" style="transform: rotate(90deg);">
+             <polyline points="6 4 10 8 6 12" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/>
+           </svg>
+           </div>
+      </div>
+      <div class="dropdown-content">
+        <div class="submenu-item" onclick="window.location.href='privacy-policy.html'">Privacy Policy</div>
+        <div class="submenu-item" onclick="window.location.href='risk.html'">Risk Disclosure Agreement</div>
+      </div>
+    </div>
+  </div>
+<button class="logout-btn">Logout</button>
+  <div class="bottom-nav">
+    <div class="nav-item"><img src="images/homes.png" id="bottomimages"><div>Home</div></div>
+    <div class="nav-item" onclick="window.location.href='search.html'"><img src="images/search.png" id="bottomimages"><div>Search</div></div>
+    <div class="nav-item"><img src="images/newgame.png" id="bottomimages"><div>NewGame</div></div>
+    <div class="nav-item" onclick="window.location.href='win-game.html'"><img src="images/plugin.png" id="bottomimages"><div>Win</div></div>
+    <div class="nav-item-active"><img src="images/me.png" id="bottomimages"><div>My</div></div>
+  </div>
+
+  <script>
+    function toggleMenu(header) {
+      const item = header.parentElement;
+      const allItems = document.querySelectorAll('.menu-item');
+      allItems.forEach(i => {
+        if (i !== item) i.classList.remove('active');
+      });
+      item.classList.toggle('active');
+    }
+  document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+  });
+
+  const sessionId = localStorage.getItem('sessionId'); // or sessionStorage.getItem('sessionId');
+
+    // Ensure the session ID is available
+    if (!sessionId) {
+      alert('Session ID not found. Please log in again.');
+      window.location.href = 'login.html'; // Redirect to login if sessionId is missing
+    } else {
+      // Fetch balance and user data from the backend using the session ID
+      fetch(`/api/balance?sessionId=${sessionId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            // Dynamically populate the user profile data
+            document.getElementById('user').textContent = data.raw.obj.user;
+            document.getElementById('userId').textContent = data.raw.obj.promotoId;
+            document.getElementById('mobile').textContent = data.raw.obj.mobile;
+            document.getElementById('balance').textContent = data.balance;
+          } else {
+            console.error('Failed to fetch user data');
+            alert('Failed to load profile data. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching balance data:', error);
+          alert('Error fetching profile data. Please try again later.');
+        });
+    }
+
+
+
+
+  </script>
+
+</body>
+</html>

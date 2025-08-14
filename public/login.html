@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Login (test)</title>
+</head>
+<body>
+  <h2>Login (test)</h2>
+  <form id="loginForm">
+    <label>Mobile: <input id="mobile" value="+918847460027" required></label><br><br>
+    <label>Password: <input id="password" type="password" value="1" required></label><br><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <pre id="result" style="background:#f4f4f4;padding:10px;"></pre>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const mobile = document.getElementById('mobile').value.trim();
+      const password = document.getElementById('password').value;
+
+      document.getElementById('result').textContent = 'Logging in...';
+
+      try {
+        const resp = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile, password })
+        });
+        const data = await resp.json();
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+
+        if (data.ok && data.sessionId) {
+          localStorage.setItem('sessionId', data.sessionId);
+          // redirect to balance page
+          setTimeout(() => window.location.href = '/balance.html', 700);
+        }
+      } catch (err) {
+        document.getElementById('result').textContent = 'Error: ' + (err.message || err);
+      }
+    });
+  </script>
+</body>
+</html>
+
