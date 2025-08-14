@@ -3,13 +3,11 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const path = require('path');
+const fetch = require('node-fetch'); // Explicit node-fetch
 
 // Create app
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Safe fetch: Node 18+ has global fetch, else fall back to node-fetch
-const fetch = globalThis.fetch || ((...args) => import('node-fetch').then(m => m.default(...args)));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -46,17 +44,30 @@ app.post('/api/login', async (req, res) => {
     const hashed = md5(password);
     const remoteUrl = `https://mantrishop.in/lottery-backend/glserver/user/login?mobile=${encodeURIComponent(mobile)}&password=${encodeURIComponent(hashed)}`;
 
+    // Realistic headers
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Origin': 'https://mantrishop.in',
+      'Referer': 'https://mantrishop.in/login',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      'Accept': 'application/json,text/html, */*'
+    };
+
     const remoteResp = await fetch(remoteUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Origin': 'https://mantrishop.in',
-        'Referer': 'https://mantrishop.in/',
-        'User-Agent': 'Mozilla/5.0',
-        'Accept': '*/*'
-      },
+      headers,
       body: ''
     });
+
+    const text = await remoteResp.text();
+    console.log('Remote response text:', text);
+
+    let remoteData;
+    try {
+      remoteData = JSON.parse(text);
+    } catch {
+      remoteData = { parseError: true, text };
+    }
 
     // Capture cookies
     const sc = remoteResp.headers?.raw ? remoteResp.headers.raw()['set-cookie'] : remoteResp.headers?.get?.('set-cookie');
@@ -67,19 +78,11 @@ app.post('/api/login', async (req, res) => {
       cookieString = sc.split(';')[0];
     }
 
-    let remoteData;
-    try {
-      remoteData = await remoteResp.json();
-    } catch (err) {
-      const text = await remoteResp.text().catch(() => '');
-      remoteData = { parseError: true, text };
-      console.log('Remote response text:', text);
-    }
-
     const sessionId = uuidv4();
     sessions[sessionId] = { cookies: cookieString, data: remoteData, createdAt: Date.now() };
 
     res.json({ ok: true, sessionId, remoteData });
+
   } catch (err) {
     console.error('Login proxy error:', err);
     res.status(500).json({ ok: false, error: 'Proxy login error', details: err.message || String(err) });
@@ -109,21 +112,27 @@ app.get('/api/balance', async (req, res) => {
     const followResp = await fetch(followUpUrl, {
       method: 'GET',
       headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json,text/html, */*',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         'Cookie': session.cookies,
         'Referer': 'https://mantrishop.in/',
         'Origin': 'https://mantrishop.in'
       }
     });
 
-    if (!followResp.ok) {
-      return res.json({ ok: true, balance: null, raw: stored, followUpStatus: followResp.status });
+    const followText = await followResp.text();
+    console.log('Follow-up response text:', followText);
+
+    let followData;
+    try {
+      followData = JSON.parse(followText);
+    } catch {
+      followData = { parseError: true, text: followText };
     }
 
-    const followData = await followResp.json();
     const balance = findBalance(followData);
     res.json({ ok: true, balance, raw: followData });
+
   } catch (err) {
     console.error('Balance error:', err);
     res.status(500).json({ ok: false, error: 'Server error fetching balance', details: err.message || '' });
