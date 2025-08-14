@@ -67,13 +67,15 @@ app.post('/api/login', async (req, res) => {
       cookieString = sc.split(';')[0];
     }
 
-    let remoteData;
-    try {
-      remoteData = await remoteResp.json();
-    } catch {
-      const text = await remoteResp.text().catch(() => '');
-      remoteData = { parseError: true, text };
-    }
+let remoteData;
+try {
+  remoteData = await remoteResp.json();
+} catch {
+  const text = await remoteResp.text().catch(() => '');
+  console.error('Remote response text:', text);  // <-- log the raw response
+  remoteData = { parseError: true, text };
+}
+
 
     const sessionId = uuidv4();
     sessions[sessionId] = { cookies: cookieString, data: remoteData, createdAt: Date.now() };
