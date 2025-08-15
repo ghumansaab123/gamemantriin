@@ -40,7 +40,9 @@ app.get('/trigger-curl', (req, res) => {
 
     // Log the stdout (response of the curl command)
     console.log(`stdout: ${stdout}`);
-    return res.send({ message: 'Curl command executed successfully', stdout });
+
+    // Send the stdout (which should contain the response from the API)
+    return res.send({ message: 'Curl command executed successfully', output: stdout });
   });
 });
 
