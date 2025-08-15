@@ -10,8 +10,8 @@ app.use(express.json());
 
 // Route to trigger the curl command
 app.get('/trigger-curl', (req, res) => {
-  // Corrected curl command with properly escaped special characters
-  const curlCommand = `curl -X POST "https://mantrishop.in/lottery-backend/glserver/user/login?mobile=%2B918847460027&password=c4ca4238a0b923820dcc509a6f75849b" \
+  // Corrected curl command with properly escaped special characters and added verbose mode (-v)
+  const curlCommand = `curl -v -X POST "https://mantrishop.in/lottery-backend/glserver/user/login?mobile=%2B918847460027&password=c4ca4238a0b923820dcc509a6f75849b" \
 -H "Content-Type: application/x-www-form-urlencoded" \
 -H "Origin: https://mantrishop.in" \
 -H "Referer: https://mantrishop.in/" \
@@ -40,6 +40,11 @@ app.get('/trigger-curl', (req, res) => {
 
     // Log the stdout (response of the curl command)
     console.log(`stdout: ${stdout}`);
+
+    // If the response is empty, inform the user
+    if (!stdout) {
+      return res.status(500).json({ error: "No response received from the API" });
+    }
 
     // Send the stdout (which should contain the response from the API)
     return res.send({ message: 'Curl command executed successfully', output: stdout });
