@@ -10,6 +10,7 @@ app.use(express.json());
 
 // Route to trigger the curl command
 app.get('/trigger-curl', (req, res) => {
+  // Corrected curl command with properly escaped special characters
   const curlCommand = `curl -X POST "https://mantrishop.in/lottery-backend/glserver/user/login?mobile=%2B918847460027&password=c4ca4238a0b923820dcc509a6f75849b" \
 -H "Content-Type: application/x-www-form-urlencoded" \
 -H "Origin: https://mantrishop.in" \
@@ -18,7 +19,7 @@ app.get('/trigger-curl', (req, res) => {
 -H "Accept: */*" \
 -H "Cookie: __cf_bm=VlFHOF1LIuAq8DIQ4JQSfCnSqwtrKSckuN_METOQ.KY-1755243437-1.0.1.1-WevhWpWpSiBTC1xrpmnvep5R.pHElh8wXucu72vBZhbmHkH7jwJavRspoQXJwYI86f6Nr_9WzjH8H1BZKif1qiwcWPw6KBzbYAOx.b42.d8" \
 -H "Sec-Ch-Ua-Platform: \\"macOS\\"" \
--H "Sec-Ch-Ua: \\"Chromium\\";v=\\"137\\", \\"Not/A)Brand\\";v=\\"24\\"" \
+-H "Sec-Ch-Ua: \\"Chromium\\";v=\\"137\\", \\"Not/A\\)Brand\\";v=\\"24\\"" \
 -H "Sec-Ch-Ua-Mobile: ?0" \
 -H "Sec-Fetch-Site: same-origin" \
 -H "Sec-Fetch-Mode: cors" \
