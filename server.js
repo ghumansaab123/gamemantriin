@@ -1,14 +1,19 @@
 const express = require('express');
 const axios = require('axios');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route to test if server is running
+app.get('/', (req, res) => {
+  res.send('Welcome to the login service!');
+});
+
 // Simulate a login request to mantrishop.in and log the response
 app.post('/login', async (req, res) => {
+  console.log('Received POST request to /login');
   try {
     const mobile = req.body.mobile || '+918903200000'; // Example mobile number
     const password = req.body.password || 'c4ca4238a0b923820dcc509a6f75849b'; // Example password hash
