@@ -1,20 +1,12 @@
-const express = require('express');
-const axios = require('axios');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Simulate a login request to mantrishop.in and log the Cloudflare response headers
 app.post('/login', async (req, res) => {
-  console.log('Received POST request to /login');
+  console.log('Received POST request to /login');  // This should log when /login is hit.
   
   try {
     const mobile = req.body.mobile || '+918903200000'; // Example mobile number
     const password = req.body.password || 'c4ca4238a0b923820dcc509a6f75849b'; // Example password hash
 
-    // Making the request to mantrishop.in (this will be intercepted by Cloudflare)
+    console.log('Sending request to mantrishop.in...'); // Debugging step
+
     const response = await axios.post('https://mantrishop.in/lottery-backend/glserver/user/login', null, {
       params: {
         mobile: mobile,
@@ -31,16 +23,13 @@ app.post('/login', async (req, res) => {
       }
     });
 
-    // Log the Cloudflare response headers to check for any blocking or challenges
     console.log('Cloudflare Response Headers:', response.headers);
     console.log('Cloudflare Response Body:', response.data);
 
-    // Check for specific Cloudflare headers
     if (response.headers['cf-ray']) {
       console.log('Cloudflare Ray ID:', response.headers['cf-ray']);
     }
-    
-    // Send back the response to the client
+
     res.json({
       status: 'success',
       responseHeaders: response.headers,
@@ -56,9 +45,4 @@ app.post('/login', async (req, res) => {
       responseBody: error.response ? error.response.data : null
     });
   }
-});
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
 });
