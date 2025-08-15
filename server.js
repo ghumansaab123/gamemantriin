@@ -1,6 +1,11 @@
+const express = require('express');
 const { exec } = require('child_process');
 
-// Add a new route in your server.js
+// Initialize the app
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Add the /trigger-curl route
 app.get('/trigger-curl', (req, res) => {
   const curlCommand = `curl -X POST "https://mantrishop.in/lottery-backend/glserver/user/login?mobile=%2B918847460027&password=c4ca4238a0b923820dcc509a6f75849b" \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -30,4 +35,9 @@ app.get('/trigger-curl', (req, res) => {
     console.log(`stdout: ${stdout}`);
     return res.send({ message: 'Curl command executed successfully', stdout });
   });
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
