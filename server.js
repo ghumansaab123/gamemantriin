@@ -6,18 +6,15 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Root route to test if server is running
-app.get('/', (req, res) => {
-  res.send('Welcome to the login service!');
-});
-
-// Simulate a login request to mantrishop.in and log the response
+// Simulate a login request to mantrishop.in and log the Cloudflare response headers
 app.post('/login', async (req, res) => {
   console.log('Received POST request to /login');
+  
   try {
     const mobile = req.body.mobile || '+918903200000'; // Example mobile number
     const password = req.body.password || 'c4ca4238a0b923820dcc509a6f75849b'; // Example password hash
 
+    // Making the request to mantrishop.in (this will be intercepted by Cloudflare)
     const response = await axios.post('https://mantrishop.in/lottery-backend/glserver/user/login', null, {
       params: {
         mobile: mobile,
@@ -34,11 +31,16 @@ app.post('/login', async (req, res) => {
       }
     });
 
-    // Log the response details
+    // Log the Cloudflare response headers to check for any blocking or challenges
     console.log('Cloudflare Response Headers:', response.headers);
     console.log('Cloudflare Response Body:', response.data);
 
-    // Send the response back to the client (browser or postman)
+    // Check for specific Cloudflare headers
+    if (response.headers['cf-ray']) {
+      console.log('Cloudflare Ray ID:', response.headers['cf-ray']);
+    }
+    
+    // Send back the response to the client
     res.json({
       status: 'success',
       responseHeaders: response.headers,
@@ -47,7 +49,6 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Error making request:', error);
 
-    // Handle errors and return the response to the client
     res.status(500).json({
       status: 'error',
       message: error.message,
